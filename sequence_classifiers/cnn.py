@@ -28,7 +28,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     num_filters : int, optional (default=250)
         The number of convolutional filters to fit.
 
-    filter_size : int, optional (default=3)
+    filter_size : int, optional (default=2)
         The width of the convolutional filter, the number of the consecutive
          tokens covered by on filter.
 
@@ -56,7 +56,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  embedding_dim=50,
                  num_filters=250,
-                 filter_size=3,
+                 filter_size=2,
                  hidden_dim=250,
                  dropout_rates=(0.5, 0.2),
                  verbose=False):
