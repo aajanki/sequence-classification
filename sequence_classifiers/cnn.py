@@ -70,7 +70,9 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y, batch_size=32, epochs=2):
         assert_all_finite(X)
-        X, y = check_X_y(X, y, dtype=[np.int32, np.int64], warn_on_dtype=True)
+        X, y = check_X_y(X, y, dtype=[np.int32, np.int64],
+                         warn_on_dtype=True,
+                         ensure_min_features=self.filter_size)
         check_classification_targets(y)
 
         self.net_ = self._build_model(X.max() + 1,
@@ -90,7 +92,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
         assert_all_finite(X)
-        X = check_array(X, dtype=[np.int32, np.int64])
+        X = check_array(X, dtype=[np.int32, np.int64],
+                        ensure_min_features=self.filter_size)
         return self.net_.predict(X)[:, 0]
 
     def predict(self, X):
