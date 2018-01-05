@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.utils import check_X_y
+from sklearn.utils import check_X_y, check_array, assert_all_finite
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
 from keras.models import Sequential
@@ -69,6 +69,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
 
     def fit(self, X, y, batch_size=32, epochs=2):
+        assert_all_finite(X)
         X, y = check_X_y(X, y, dtype=[np.int32, np.int64], warn_on_dtype=True)
         check_classification_targets(y)
 
@@ -88,6 +89,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
+        assert_all_finite(X)
+        X = check_array(X, dtype=[np.int32, np.int64])
         return self.net_.predict(X)[:, 0]
 
     def predict(self, X):
