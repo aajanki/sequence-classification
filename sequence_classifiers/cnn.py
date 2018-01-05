@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
@@ -7,7 +7,7 @@ from keras.models import Sequential
 from keras.layers import Embedding, Dropout, Convolution1D, GlobalMaxPooling1D, Dense, Activation
 
 
-class CNNSequenceClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
+class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     """Sequence classification using a convolutional neural network
 
     The input is a n_samples x n_sequence_length array of integers. Each row
