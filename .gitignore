@@ -1,2 +1,11 @@
-/venv
-__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+
+build/
+dist/
+sdist/
+/.eggs/
+*.egg-info/
+*.egg
+/venv/
