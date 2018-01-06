@@ -1,11 +1,45 @@
+import os
+import tempfile
 import numpy as np
 from scipy import sparse
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils import check_X_y, check_array, assert_all_finite
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Embedding, Dropout, Convolution1D, GlobalMaxPooling1D, Dense, Activation
+
+
+def serialize_net_(net):
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    tmp.file.close()
+    net.save(tmp.name)
+
+    with open(tmp.name, 'rb') as f:
+        res = f.read()
+
+    delete_ignore_errors(tmp.name)
+
+    return res
+
+
+def deserialize_net(bytes):
+    tmp = tempfile.NamedTemporaryFile(delete=False)
+    tmp.file.write(bytes)
+    tmp.file.close()
+
+    res = load_model(tmp.name)
+
+    delete_ignore_errors(tmp.name)
+
+    return res
+
+
+def delete_ignore_errors(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
 
 
 class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
@@ -147,3 +181,18 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         model.compile(loss='binary_crossentropy', optimizer='adam')
 
         return model
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'net_' in state:
+            state['net_bytes_'] = serialize_net_(state['net_'])
+            del state['net_']
+
+        return state
+
+    def __setstate__(self, state):
+        if 'net_bytes_' in state:
+            self.__dict__['net_'] = deserialize_net(state['net_bytes_'])
+            del state['net_bytes_']
+
+        self.__dict__.update(state)
