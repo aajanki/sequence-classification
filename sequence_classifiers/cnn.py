@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import sparse
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils import check_X_y, check_array, assert_all_finite
 from sklearn.utils.multiclass import check_classification_targets
@@ -69,12 +70,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
 
     def fit(self, X, y, batch_size=32, epochs=2):
-        assert_all_finite(X)
-        X, y = check_X_y(X, y, dtype=[np.int32, np.int64],
-                         warn_on_dtype=True,
-                         ensure_min_features=self.filter_size)
         check_classification_targets(y)
-
+        X, y = self._check_input(X, y)
         self.net_ = self._build_model(X.max() + 1,
                                       self.embedding_dim,
                                       X.shape[1],
@@ -91,9 +88,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
-        assert_all_finite(X)
-        X = check_array(X, dtype=[np.int32, np.int64],
-                        ensure_min_features=self.filter_size)
+        X = self._check_input(X)
         return self.net_.predict(X)[:, 0]
 
     def predict(self, X):
@@ -104,6 +99,24 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
+
+    def _check_input(self, X, y=None):
+        # We check for finiteness separately here, because the finiteness
+        # check in check_X_y() does not work when X is converted to integer.
+        # Moreover, assert_all_finite() is buggy on sparse input so we skip it
+        # (check_X_y/check_array will anayway raise an exception on sparse
+        # arrays).
+        if not sparse.issparse(X):
+            assert_all_finite(X)
+
+        if y is None:
+            return check_array(X, dtype=[np.int32, np.int64],
+                               warn_on_dtype=True,
+                               ensure_min_features=self.filter_size)
+        else:
+            return check_X_y(X, y, dtype=[np.int32, np.int64],
+                             warn_on_dtype=True,
+                             ensure_min_features=self.filter_size)
 
     def _build_model(self,
                      vocabulary_size,
