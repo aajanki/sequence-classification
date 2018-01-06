@@ -127,6 +127,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         proba = self.predict_proba(X)
+        X = np.array(X)
         predictions = np.zeros(X.shape[0], dtype=np.int)
         predictions[proba > 0.5] = 1
         return predictions
