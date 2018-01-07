@@ -6,6 +6,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils import check_X_y, check_array, assert_all_finite
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
+from sklearn.preprocessing import LabelBinarizer
 from keras.models import Sequential, load_model
 from keras.layers import Embedding, Dropout, Convolution1D, GlobalMaxPooling1D, Dense, Activation
 
@@ -106,13 +107,17 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def fit(self, X, y, batch_size=32, epochs=2):
         check_classification_targets(y)
         X, y = self._check_input(X, y)
+        binarizer = LabelBinarizer()
+        y = binarizer.fit_transform(y)
+        self.classes_ = binarizer.classes_
         self.net_ = self._build_model(X.max() + 1,
                                       self.embedding_dim,
                                       X.shape[1],
                                       self.dropout_rates,
                                       self.num_filters,
                                       self.filter_size,
-                                      self.hidden_dim)
+                                      self.hidden_dim,
+                                      len(self.classes_))
         self.net_.fit(X, y,
                       batch_size=batch_size,
                       epochs=epochs,
@@ -123,14 +128,18 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
         X = self._check_input(X)
-        return self.net_.predict(X)[:, 0]
+        return self.net_.predict(X)
 
     def predict(self, X):
         proba = self.predict_proba(X)
-        X = np.array(X)
-        predictions = np.zeros(X.shape[0], dtype=np.int)
-        predictions[proba > 0.5] = 1
-        return predictions
+        if len(self.classes_) <= 2:
+            num_samples = proba.shape[0]
+            predicted_class = np.zeros(num_samples, dtype=np.int)
+            predicted_class[proba[:, 0] > 0.5] = 1
+        else:
+            predicted_class = np.argmax(proba, axis=1)
+
+        return self.classes_[predicted_class]
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
@@ -160,7 +169,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
                      dropout_rates,
                      num_filters,
                      filter_size,
-                     hidden_dim):
+                     hidden_dim,
+                     num_classes):
         model = Sequential()
         model.add(Embedding(vocabulary_size, embedding_dim, input_length=maxlen))
         model.add(Dropout(dropout_rates[0]))
@@ -176,7 +186,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         model.add(Dropout(dropout_rates[1]))
         model.add(Activation('relu'))
 
-        model.add(Dense(1))
+        model.add(Dense(1 if num_classes <= 2 else num_classes))
         model.add(Activation('sigmoid'))
 
         model.compile(loss='binary_crossentropy', optimizer='adam')
