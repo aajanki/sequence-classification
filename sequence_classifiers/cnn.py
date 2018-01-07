@@ -128,18 +128,15 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
         X = self._check_input(X)
-        return self.net_.predict(X)
+        proba = self.net_.predict(X)
+        if len(self.classes_) == 2:
+            return np.hstack((proba, 1-proba))
+        else:
+            return proba
 
     def predict(self, X):
         proba = self.predict_proba(X)
-        if len(self.classes_) <= 2:
-            num_samples = proba.shape[0]
-            predicted_class = np.zeros(num_samples, dtype=np.int)
-            predicted_class[proba[:, 0] > 0.5] = 1
-        else:
-            predicted_class = np.argmax(proba, axis=1)
-
-        return self.classes_[predicted_class]
+        return self.classes_[np.argmax(proba, axis=1)]
 
     def predict_log_proba(self, X):
         return np.log(self.predict_proba(X))
