@@ -1,5 +1,6 @@
 import os
 import tempfile
+import warnings
 import numpy as np
 from scipy import sparse
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -9,6 +10,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.preprocessing import LabelBinarizer
 from keras.models import Sequential, load_model
 from keras.layers import Embedding, Dropout, Convolution1D, GlobalMaxPooling1D, Dense, Activation
+from sklearn.exceptions import DataConversionWarning
 
 
 def serialize_net_(net):
@@ -127,7 +129,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
 
     def predict_proba(self, X):
         check_is_fitted(self, 'net_')
-        X = self._check_input(X)
+        X, _ = self._check_input(X)
         proba = self.net_.predict(X)
         if len(self.classes_) == 2:
             return np.hstack((1 - proba, proba))
@@ -151,13 +153,19 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
             assert_all_finite(X)
 
         if y is None:
-            return check_array(X, dtype=[np.int32, np.int64],
-                               warn_on_dtype=True,
-                               ensure_min_features=self.filter_size)
+            X = check_array(X, dtype=[np.int32, np.int64],
+                            warn_on_dtype=True,
+                            ensure_min_features=self.filter_size)
         else:
-            return check_X_y(X, y, dtype=[np.int32, np.int64],
+            X, y = check_X_y(X, y, dtype=[np.int32, np.int64],
                              warn_on_dtype=True,
                              ensure_min_features=self.filter_size)
+
+        if X.min() < 0:
+            warnings.warn('Negative values in X cropped to zero.', DataConversionWarning)
+            X = np.maximum(X, 0)
+
+        return X, y
 
     def _build_model(self,
                      vocabulary_size,
