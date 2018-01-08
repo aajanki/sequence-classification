@@ -130,7 +130,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         X = self._check_input(X)
         proba = self.net_.predict(X)
         if len(self.classes_) == 2:
-            return np.hstack((proba, 1-proba))
+            return np.hstack((1 - proba, proba))
         else:
             return proba
 
