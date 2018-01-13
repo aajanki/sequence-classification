@@ -14,6 +14,7 @@ from sklearn.exceptions import DataConversionWarning
 
 
 def serialize_net_(net):
+    """Serialize a Keras net as HDF5 bytestring."""
     tmp = tempfile.NamedTemporaryFile(delete=False)
     tmp.file.close()
     net.save(tmp.name)
@@ -27,6 +28,7 @@ def serialize_net_(net):
 
 
 def deserialize_net(bytes):
+    """Deserialize a Keras net from an HDF5 byte representation."""
     tmp = tempfile.NamedTemporaryFile(delete=False)
     tmp.file.write(bytes)
     tmp.file.close()
@@ -48,7 +50,7 @@ def delete_ignore_errors(filename):
 class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     """Sequence classification using a convolutional neural network
 
-    The input is a n_samples x n_sequence_length array of integers. Each row
+    The input is a n_samples x sequence_length array of integers. Each row
     is one sequence of token indexes.
 
     The classifier fits a neural network consisting of the following layers to
@@ -90,6 +92,24 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     References
     ----------
     "Convolutional Neural Networks for Sentence Classification" by Yoon Kim
+
+    Examples
+    --------
+    >>> from keras.datasets import imdb
+    >>> from keras.preprocessing import sequence
+    >>> from sequence_classifiers import CNNSequenceClassifier
+
+    >>> maxlen = 400
+    >>> (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=5000)
+    >>> x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+    >>> x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+
+    >>> clf = CNNSequenceClassifier(filter_size=3)
+    >>> clf.fit(x_train, y_train, epochs=2)
+    >>> print(clf.score(x_test, y_test))
+    ...                    # doctest: +SKIP
+    ...
+    0.87736
     """
     def __init__(self,
                  embedding_dim=50,
@@ -107,6 +127,27 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
 
     def fit(self, X, y, batch_size=32, epochs=2):
+        """Fit a convolutional neural network classifier according to X, y
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, sequence_length)
+            Training sequences of integer tokens, where n_samples is the
+            number of samples and sequence_length is the number of tokens in a
+            sequence.
+
+            Each sequence must be zero-padded to the same length
+            (sequence_length) using, for example,
+            keras.preprocessing.sequence.pad_sequences().
+
+        y : array-like, shape (n_samples,)
+            Target values.
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        """
         check_classification_targets(y)
         X, y = self._check_input(X, y)
         binarizer = LabelBinarizer()
@@ -128,6 +169,20 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         return self
 
     def predict_proba(self, X):
+        """
+        Return probability estimates for the test sequences X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, sequence_length]
+
+        Returns
+        -------
+        C : array-like, shape = [n_samples, n_classes]
+            Returns the probability of the samples for each class in
+            the model. The columns correspond to the classes in sorted
+            order, as they appear in the attribute `classes_`.
+        """
         check_is_fitted(self, 'net_')
         X, _ = self._check_input(X)
         proba = self.net_.predict(X)
@@ -137,10 +192,36 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
             return proba
 
     def predict(self, X):
+        """
+        Perform classification on an array of test sequences X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, sequence_length]
+
+        Returns
+        -------
+        C : array, shape = [n_samples]
+            Predicted target values for X
+        """
         proba = self.predict_proba(X)
         return self.classes_[np.argmax(proba, axis=1)]
 
     def predict_log_proba(self, X):
+        """
+        Return log-probability estimates for the test sequences X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, sequence_length]
+
+        Returns
+        -------
+        C : array-like, shape = [n_samples, n_classes]
+            Returns the log-probability of the samples for each class in
+            the model. The columns correspond to the classes in sorted
+            order, as they appear in the attribute `classes_`.
+        """
         return np.log(self.predict_proba(X))
 
     def _check_input(self, X, y=None):
