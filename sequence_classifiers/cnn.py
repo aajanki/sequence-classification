@@ -191,8 +191,12 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         model.add(Dropout(dropout_rates[1]))
         model.add(Activation('relu'))
 
-        model.add(Dense(1 if num_classes <= 2 else num_classes))
-        model.add(Activation('sigmoid'))
+        if num_classes <= 2:
+            model.add(Dense(1))
+            model.add(Activation('sigmoid'))
+        else:
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
 
         model.compile(loss='binary_crossentropy', optimizer='adam')
 
