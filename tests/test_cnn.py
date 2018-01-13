@@ -1,6 +1,8 @@
 import numpy as np
-from sklearn.utils.estimator_checks import check_estimator
+import sklearn.utils.estimator_checks
 from sequence_classifiers import CNNSequenceClassifier
+from sklearn.utils.estimator_checks import check_estimator
+from sklearn.base import clone
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import assert_raises, assert_true, assert_greater
 from sklearn.utils.testing import assert_equal, assert_array_equal, assert_allclose
@@ -11,8 +13,13 @@ def test_check_cnn_classifier():
     return check_estimator(CNNSequenceClassifier)
 
 
-def test_classifier_train():
-    """sklearn's check_classifiers_train() with suitable training data"""
+def check_classifier_train(name, classifier_orig):
+    """sklearn's check_classifiers_train() with sequence data.
+
+    The original sklearn.utils.estimator_checks.check_classifiers_train() draws
+    continuous training data from a Gaussian mixture. CNN training fails on
+    that kind of data. This version uses integer sequences as training data as
+    expected by the CNNSequenceClassifier."""
     generator = check_random_state(999)
     X_m = generator.randint(40, size=(200, 10))
     y_m = generator.randint(3, size=X_m.shape[0])
@@ -25,7 +32,7 @@ def test_classifier_train():
         classes = np.unique(y)
         n_classes = len(classes)
 
-        classifier = CNNSequenceClassifier()
+        classifier = clone(classifier_orig)
 
         # raises error on malformed input for fit
         assert_raises(ValueError, classifier.fit, X, y[:-1])
@@ -55,3 +62,8 @@ def test_classifier_train():
         y_log_prob = classifier.predict_log_proba(X)
         assert_allclose(y_log_prob, np.log(y_prob), 8, atol=1e-9)
         assert_array_equal(np.argsort(y_log_prob), np.argsort(y_prob))
+
+
+# Override a sklearn test with one that uses more a data distribution more
+# suitable for a CNNSequenceClassifier
+sklearn.utils.estimator_checks.check_classifiers_train = check_classifier_train
