@@ -7,18 +7,6 @@ with open('requirements.txt') as f:
 
 TESTS_REQUIRES = ['nose>=1.1.2']
 
-try:
-    import numpy
-except ImportError:
-    print('numpy is required during installation')
-    sys.exit(1)
-
-try:
-    import scipy
-except ImportError:
-    print('scipy is required during installation')
-    sys.exit(1)
-
 setup(name='sklearn-sequence-classifiers',
       version='0.1',
       description='Sequence classifiers for scikit-learn',

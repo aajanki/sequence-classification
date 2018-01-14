@@ -1,10 +1,12 @@
+import sys
 import numpy as np
 import sklearn.utils.estimator_checks
 from sequence_classifiers import CNNSequenceClassifier
-from sklearn.utils.estimator_checks import check_estimator
+from sklearn.utils.estimator_checks import check_estimator, multioutput_estimator_convert_y_2d
 from sklearn.base import clone
 from sklearn.utils import check_random_state
-from sklearn.utils.testing import assert_raises, assert_true, assert_greater
+from sklearn.utils.testing import assert_raises, assert_raises_regex
+from sklearn.utils.testing import assert_true, assert_greater
 from sklearn.utils.testing import assert_equal, assert_array_equal, assert_allclose
 from sklearn.metrics import accuracy_score
 
@@ -64,6 +66,39 @@ def check_classifier_train(name, classifier_orig):
         assert_array_equal(np.argsort(y_log_prob), np.argsort(y_prob))
 
 
-# Override a sklearn test with one that uses more a data distribution more
-# suitable for a CNNSequenceClassifier
+def py3_check_dtype_object(name, estimator_orig):
+    """sklearn's check_dtype_object() patched with a Python 3 fix.
+
+    The original sklearn version fails on Python 3 because it asserts on an
+    exception message text that has changed on Python 3.
+    """
+    # check that estimators treat dtype object as numeric if possible
+    rng = np.random.RandomState(0)
+    X = rng.rand(40, 10).astype(object)
+    y = (X[:, 0] * 4).astype(np.int)
+    estimator = clone(estimator_orig)
+    y = multioutput_estimator_convert_y_2d(estimator, y)
+
+    estimator.fit(X, y)
+    if hasattr(estimator, "predict"):
+        estimator.predict(X)
+
+    if hasattr(estimator, "transform"):
+        estimator.transform(X)
+
+    try:
+        estimator.fit(X, y.astype(object))
+    except Exception as e:
+        if "Unknown label type" not in str(e):
+            raise
+
+    X[0, 0] = {'foo': 'bar'}
+    # Originally the msg didn't contain the bytestring part
+    msg = "argument must be a string, a bytes-like object or a number"
+    assert_raises_regex(TypeError, msg, estimator.fit, X, y)
+
+
+# Monkey-patch sklearn test cases that are not broken on integer inputs
 sklearn.utils.estimator_checks.check_classifiers_train = check_classifier_train
+if sys.version_info >= (3, 0, 0):
+    sklearn.utils.estimator_checks.check_dtype_object = py3_check_dtype_object

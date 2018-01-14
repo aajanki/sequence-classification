@@ -2,7 +2,17 @@
 
 Convolutional neural network sequence classifier. Wraps a Keras implementation as a scikit-learn classifier.
 
-Requires Keras (tested with the Theano backend).
+## Software requirements
+
+* Python (2.7 or >= 3.5)
+* scikit-learn (tested on 0.19)
+* Keras (tested with the Theano backend)
+
+## Installation
+
+```
+python setup.py install
+```
 
 ## Running tests
 
