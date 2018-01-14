@@ -1,6 +1,6 @@
 # Sequence classifier with a scikit-learn interface
 
-Convolutional neural network sequence classifier. Wraps a Keras implementation as a scikit-learn classifier.
+Convolutional neural network sequence classifier in the spirit of [`[1]`](#references). Wraps a Keras implementation as a scikit-learn classifier.
 
 ## Software requirements
 
@@ -15,6 +15,7 @@ python setup.py install
 ```
 
 ## Running tests
+
 
 ```
 python setup.py test
@@ -38,3 +39,7 @@ clf = CNNSequenceClassifier(filter_size=3)
 clf.fit(x_train, y_train, epochs=2)
 print(clf.score(x_test, y_test))
 ```
+
+## References
+
+`[1]` Yoon Kim: [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/abs/1408.5882)
