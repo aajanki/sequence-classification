@@ -126,7 +126,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         self.dropout_rates = dropout_rates
         self.verbose = verbose
 
-    def fit(self, X, y, batch_size=32, epochs=5):
+    def fit(self, X, y, batch_size=32, epochs=10):
         """Fit a convolutional neural network classifier according to X, y
 
         Parameters
