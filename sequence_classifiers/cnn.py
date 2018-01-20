@@ -81,6 +81,12 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         layer and the convolutional layer, the second is the dropout rate
         between the dense layer and the output layer.
 
+    epochs : int, optional (default=4)
+        Number of epochs, that is, full passes over the training data, to run on fit().
+
+    batch_size : int, optional (default=32)
+        Number of samples per gradient update.
+
     verbose : bool, optional (default=False)
         Enable verbose output during training.
 
@@ -104,8 +110,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     >>> x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
     >>> x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
 
-    >>> clf = CNNSequenceClassifier(filter_size=3)
-    >>> clf.fit(x_train, y_train, epochs=2)
+    >>> clf = CNNSequenceClassifier(filter_size=3, epochs=2)
+    >>> clf.fit(x_train, y_train)
     >>> print(clf.score(x_test, y_test))
     ...                    # doctest: +SKIP
     ...
@@ -117,6 +123,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
                  filter_size=2,
                  hidden_dim=250,
                  dropout_rates=(0.5, 0.2),
+                 epochs=4,
+                 batch_size=32,
                  verbose=False):
         super(CNNSequenceClassifier, self).__init__()
         self.embedding_dim = embedding_dim
@@ -124,9 +132,11 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         self.filter_size = filter_size
         self.hidden_dim = hidden_dim
         self.dropout_rates = dropout_rates
+        self.epochs = epochs
+        self.batch_size = batch_size
         self.verbose = verbose
 
-    def fit(self, X, y, batch_size=32, epochs=10):
+    def fit(self, X, y):
         """Fit a convolutional neural network classifier according to X, y
 
         Parameters
@@ -162,8 +172,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
                                       self.hidden_dim,
                                       len(self.classes_))
         self.net_.fit(X, y,
-                      batch_size=batch_size,
-                      epochs=epochs,
+                      batch_size=self.batch_size,
+                      epochs=self.epochs,
                       verbose=1 if self.verbose else 0)
 
         return self

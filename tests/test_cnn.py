@@ -41,7 +41,7 @@ def check_classifier_train(name, classifier_orig):
 
         classifier.fit(X, y)
         # with lists
-        classifier.fit(X.tolist(), y.tolist(), epochs=50)
+        classifier.fit(X.tolist(), y.tolist())
 
         assert_true(hasattr(classifier, "classes_"))
         y_pred = classifier.predict(X)
