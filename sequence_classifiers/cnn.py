@@ -68,14 +68,14 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     num_filters : int, optional (default=250)
         The number of convolutional filters to fit.
 
-    filter_size : int, optional (default=2)
+    filter_size : int, optional (default=3)
         The width of the convolutional filter, the number of the consecutive
          tokens covered by on filter.
 
     hidden_dim : int, optional (default=250)
         The dimensionality of the dense netwrok layer after the convolution.
 
-    dropout_rates : tuple, optional (default=(0.5, 0.2))
+    dropout_rates : tuple, optional (default=(0.2, 0.2))
         A two-tuple of dropout rates applied during the training as
         regularisation. The first element is the dropout between the embedding
         layer and the convolutional layer, the second is the dropout rate
@@ -110,7 +110,7 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     >>> x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
     >>> x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
 
-    >>> clf = CNNSequenceClassifier(filter_size=3, epochs=2)
+    >>> clf = CNNSequenceClassifier(epochs=2)
     >>> clf.fit(x_train, y_train)
     >>> print(clf.score(x_test, y_test))
     ...                    # doctest: +SKIP
@@ -120,9 +120,9 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  embedding_dim=50,
                  num_filters=250,
-                 filter_size=2,
+                 filter_size=3,
                  hidden_dim=250,
-                 dropout_rates=(0.5, 0.2),
+                 dropout_rates=(0.2, 0.2),
                  epochs=4,
                  batch_size=32,
                  verbose=False):

@@ -35,8 +35,8 @@ maxlen = 400
 x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
 x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
 
-clf = CNNSequenceClassifier(filter_size=3)
-clf.fit(x_train, y_train, epochs=2)
+clf = CNNSequenceClassifier(epochs=2)
+clf.fit(x_train, y_train)
 print(clf.score(x_test, y_test))
 ```
 

@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score
 
 
 def test_check_cnn_classifier():
-    return check_estimator(CNNSequenceClassifier(epochs=50))
+    return check_estimator(CNNSequenceClassifier(filter_size=2, epochs=50))
 
 
 def check_classifier_train(name, classifier_orig):
