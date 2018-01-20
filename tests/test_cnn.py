@@ -9,10 +9,16 @@ from sklearn.utils.testing import assert_raises, assert_raises_regex
 from sklearn.utils.testing import assert_true, assert_greater
 from sklearn.utils.testing import assert_equal, assert_array_equal, assert_allclose
 from sklearn.metrics import accuracy_score
+from sklearn.exceptions import DataConversionWarning
+from numpy.testing import suppress_warnings
 
 
 def test_check_cnn_classifier():
-    return check_estimator(CNNSequenceClassifier(filter_size=2, epochs=50))
+    with suppress_warnings() as sup:
+        # Tests pass float data, CNNSequenceClassifier converts it to ints.
+        sup.filter(DataConversionWarning,
+                   'Data with input dtype float64 was converted to int32.')
+        return check_estimator(CNNSequenceClassifier(filter_size=2, epochs=50))
 
 
 def check_classifier_train(name, classifier_orig):
