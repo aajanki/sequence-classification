@@ -18,6 +18,8 @@ def test_check_cnn_classifier():
         # Tests pass float data, CNNSequenceClassifier converts it to ints.
         sup.filter(DataConversionWarning,
                    'Data with input dtype float64 was converted to int32.')
+        sup.filter(DataConversionWarning,
+                   'Data with input dtype object was converted to int32.')
         return check_estimator(CNNSequenceClassifier(filter_size=2, epochs=50))
 
 
