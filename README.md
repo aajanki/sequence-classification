@@ -14,7 +14,15 @@ Convolutional neural network sequence classifier in the spirit of [`[1]`](#refer
 ## Installation
 
 ```
-python setup.py install
+pip install --user sklearn-sequence-classifiers
+```
+
+Installing from the source code:
+
+```
+git clone git@github.com:aajanki/sequence-classification.git
+cd sequence-classification
+python setup.py install --user
 ```
 
 ## Running tests
