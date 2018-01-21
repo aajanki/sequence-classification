@@ -9,7 +9,8 @@ from sklearn.utils.multiclass import check_classification_targets
 from sklearn.utils.validation import check_is_fitted
 from sklearn.preprocessing import LabelBinarizer
 from keras.models import Sequential, load_model
-from keras.layers import Embedding, Dropout, Convolution1D, GlobalMaxPooling1D, Dense, Activation
+from keras.layers import Embedding, Dropout, Convolution1D, \
+    GlobalMaxPooling1D, Dense, Activation
 from sklearn.exceptions import DataConversionWarning
 
 
@@ -82,7 +83,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         between the dense layer and the output layer.
 
     epochs : int, optional (default=4)
-        Number of epochs, that is, full passes over the training data, to run on fit().
+        Number of epochs, that is, full passes over the training data, to run
+        on fit().
 
     batch_size : int, optional (default=32)
         Number of samples per gradient update.
@@ -253,7 +255,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
                              ensure_min_features=self.filter_size)
 
         if X.min() < 0:
-            warnings.warn('Negative values in X cropped to zero.', DataConversionWarning)
+            warnings.warn('Negative values in X cropped to zero.',
+                          DataConversionWarning)
             X = np.maximum(X, 0)
 
         return X, y
@@ -268,7 +271,8 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
                      hidden_dim,
                      num_classes):
         model = Sequential()
-        model.add(Embedding(vocabulary_size, embedding_dim, input_length=maxlen))
+        model.add(Embedding(vocabulary_size, embedding_dim,
+                            input_length=maxlen))
         model.add(Dropout(dropout_rates[0]))
 
         model.add(Convolution1D(num_filters,
