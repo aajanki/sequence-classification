@@ -13,8 +13,10 @@ Convolutional neural network sequence classifier in the spirit of [`[1]`](#refer
 
 ## Installation
 
+[Install Keras](https://keras.io/#installation). This has been tested on the Theano backend, should work on other backends, too.
+
 ```
-pip install --user sklearn-sequence-classifiers
+pip3 install --user sklearn-sequence-classifiers
 ```
 
 Installing from the source code:
@@ -22,18 +24,18 @@ Installing from the source code:
 ```
 git clone git@github.com:aajanki/sequence-classification.git
 cd sequence-classification
-python setup.py install --user
+python3 setup.py install --user
 ```
 
 ## Running tests
 
 ```
-python setup.py test
+python3 setup.py test
 ```
 
 ## Usage example
 
-Predict IMDB review sentiment.
+Predicting IMDB review sentiments.
 
 ```python
 from keras.datasets import imdb
@@ -56,4 +58,4 @@ BSD
 
 ## References
 
-`[1]` Yoon Kim: [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/abs/1408.5882)
+[1] Yoon Kim: [Convolutional Neural Networks for Sentence Classification](https://arxiv.org/abs/1408.5882)
