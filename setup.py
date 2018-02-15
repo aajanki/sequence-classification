@@ -20,7 +20,7 @@ setup(name='sklearn-sequence-classifiers',
           Usage example
           -------------
 
-          Predicting IMDB review sentiments.::
+          Predicting IMDB review sentiments::
 
               from keras.datasets import imdb
               from keras.preprocessing import sequence
