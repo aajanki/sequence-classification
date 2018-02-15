@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
 
-TESTS_REQUIRES = ['nose>=1.1.2']
+TESTS_REQUIRES = ['nose>=1.1.2', 'theano']
 
 setup(name='sklearn-sequence-classifiers',
       version='0.2',
