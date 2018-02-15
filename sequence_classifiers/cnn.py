@@ -289,11 +289,13 @@ class CNNSequenceClassifier(BaseEstimator, ClassifierMixin):
         if num_classes <= 2:
             model.add(Dense(1))
             model.add(Activation('sigmoid'))
+            loss = 'binary_crossentropy'
         else:
             model.add(Dense(num_classes))
             model.add(Activation('softmax'))
+            loss = 'categorical_crossentropy'
 
-        model.compile(loss='binary_crossentropy', optimizer='adam')
+        model.compile(loss=loss, optimizer='adam')
 
         return model
 
