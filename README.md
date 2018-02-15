@@ -1,6 +1,7 @@
 # Sequence classifier with a scikit-learn interface
 
 [![Build Status](https://travis-ci.org/aajanki/sequence-classification.svg?branch=master)](https://travis-ci.org/aajanki/sequence-classification)
+[![PyPI version](https://badge.fury.io/py/sklearn-sequence-classifiers.svg)](https://badge.fury.io/py/sklearn-sequence-classifiers)
 [![Sponsored](https://img.shields.io/badge/chilicorn-sponsored-brightgreen.svg)](http://spiceprogram.org/oss-sponsorship/)
 
 Convolutional neural network sequence classifier in the spirit of [`[1]`](#references). Wraps a Keras implementation as a scikit-learn classifier.
